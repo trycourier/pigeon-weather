@@ -1,34 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { User } = require("../models");
-const axios = require("axios");
+const getCurrentWeather = require("../lib/getCurrentWeather");
+const { CourierClient } = require("@trycourier/courier");
 
-const getCurrentWeather = async (zip, tempScale) => {
-  const units = tempScale === "F" ? "imperial" : "metric";
-  const { data } = await axios.get(
-    "https://api.openweathermap.org/data/2.5/weather",
-    {
-      params: {
-        zip,
-        units,
-        appid: process.env.OPENWEATHER_API_KEY
-      }
-    }
-  );
-  let weather = {
-    conditions: data.weather[0],
-    temp: {
-      scale: tempScale,
-      current: data.main.temp,
-      feels_like: data.main.feels_like,
-      high: data.main.temp_max,
-      low: data.main.temp_min
-    },
-    city: data.name 
-  };
-  weather.conditions.image = `https://openweathermap.org/img/wn/${weather.conditions.icon}@2x.png`
-  return weather;
-};
+const courier = CourierClient();
 
 // Retrieve all users
 router.get("/", async (req, res) => {
@@ -40,15 +16,29 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   const user = await User.findOne({ where: { id } });
+  const { profile } = await courier.getProfile({ recipientId: id });
   const weather = await getCurrentWeather(user.zipCode, user.tempScale);
-  res.json({ ...user.toJSON(), weather });
+  res.json({
+    ...user.toJSON(),
+    weather,
+    email: profile.email || "",
+    phone_number: profile.phone_number || ""
+  });
 });
 
 // Create user
 router.post("/", async (req, res) => {
   const { body: payload } = req;
-  const newUser = await User.create(payload);
-  res.status(201).json(newUser);
+  const { phone_number, email, ...rest } = payload;
+  const newUser = await User.create(rest);
+  await courier.replaceProfile({
+    recipientId: newUser.id,
+    profile: {
+      phone_number: phone_number && phone_number.length ? phone_number : undefined,
+      email: email && email.length ? email : undefined
+    }
+  });
+  res.status(201).json({ ...newUser, phone_number, email });
 });
 
 // Update user
@@ -57,14 +47,32 @@ router.put("/:id", async (req, res) => {
     body: payload,
     params: { id }
   } = req;
-  const numUpdated = await User.update(payload, { where: { id } });
-  res.json({ status: "ok", numUpdated });
+  const { phone_number, email, ...rest } = payload;
+  try {
+    const numUpdated = await User.update(rest, { where: { id } });
+    await courier.replaceProfile({
+      recipientId: id,
+      profile: {
+        phone_number: phone_number && phone_number.length ? phone_number : undefined,
+        email: email && email.length ? email : undefined
+      }
+    });
+
+    res.json({ status: "ok", numUpdated });
+  } catch (ex) {
+    console.error(ex);
+    res.sendStatus(400);
+  }
 });
 
 // Delete user
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   const numRows = await User.destroy({ where: { id } });
+  await courier.replaceProfile({
+    recipientId: id,
+    profile: {}
+  });
   res.json({ status: "ok", numRows });
 });
 

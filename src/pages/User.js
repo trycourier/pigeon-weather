@@ -22,7 +22,9 @@ const User = ({ userId }) => {
     firstName: "",
     lastName: "",
     tempScale: "F",
-    zipCode: ""
+    zipCode: "",
+    email: "",
+    phone_number: ""
   });
   const [status, setStatus] = useState({
     isSuccess: false,
@@ -136,6 +138,26 @@ const User = ({ userId }) => {
                   placeholder="Zip Code"
                   name="zipCode"
                   value={user.zipCode}
+                  onChange={handleChange}
+                />
+                <Form.Field
+                  inline
+                  control={Input}
+                  label="Email"
+                  placeholder="Email"
+                  name="email"
+                  type="email"
+                  value={user.email}
+                  onChange={handleChange}
+                />
+                <Form.Field
+                  inline
+                  control={Input}
+                  label="SMS Number"
+                  placeholder="SMS Number"
+                  name="phone_number"
+                  type="tel"
+                  value={user.phone_number}
                   onChange={handleChange}
                 />
                 <Button compact type="submit" primary size="tiny">

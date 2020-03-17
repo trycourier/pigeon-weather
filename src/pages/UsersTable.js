@@ -30,16 +30,19 @@ const UsersTable = () => {
     });
   };
 
-  const sendNotifications = event => {
-    alert("TODO: Implement Send");
+  const sendNotifications = async event => {
+    const result = await axios.post("/api/send", {
+      userIds: selectedIds
+    });
+    alert("Users Notified!");
     console.log("Send to: ", selectedIds);
   };
-  
+
   const fetchUsers = async () => {
     const result = await axios("/api/users");
     setUsers(result.data);
   };
-  
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -71,15 +74,20 @@ const UsersTable = () => {
                 <Table.Cell>{user.zipCode}</Table.Cell>
                 <Table.Cell>°{user.tempScale}</Table.Cell>
                 <Table.Cell>
-                  <List horizontal>
-                    {user.uiData?.channels?.map(channel => {
-                      return (
-                        <List.Item key={channel.name}>
-                          <List.Icon name={channel.icon} title={channel.name} />
-                        </List.Item>
-                      );
-                    })}
-                  </List>
+                  {false && (
+                    <List horizontal>
+                      {user.uiData?.channels?.map(channel => {
+                        return (
+                          <List.Item key={channel.name}>
+                            <List.Icon
+                              name={channel.icon}
+                              title={channel.name}
+                            />
+                          </List.Item>
+                        );
+                      })}
+                    </List>
+                  )}
                 </Table.Cell>
               </Table.Row>
             );
@@ -108,18 +116,15 @@ const UsersTable = () => {
             </Button>
             {selectedIds.length > 0 && (
               <>
-                {false && (
-                  <Button
-                    compact
-                    positive
-                    size="tiny"
-                    onClick={sendNotifications}
-                  >
-                    <Icon name="send" />
-                    Send{" "}
-                    {selectedIds.length > 1 ? `(${selectedIds.length})` : ""}
-                  </Button>
-                )}
+                <Button
+                  compact
+                  positive
+                  size="tiny"
+                  onClick={sendNotifications}
+                >
+                  <Icon name="send" />
+                  Send {selectedIds.length > 1 ? `(${selectedIds.length})` : ""}
+                </Button>
                 <Button compact negative size="tiny" onClick={deleteUsers}>
                   <Icon name="dont" />
                   Delete{" "}

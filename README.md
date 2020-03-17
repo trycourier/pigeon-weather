@@ -6,6 +6,8 @@ starter for a [Courier](https://trycourier.com) Sample Application. Notification
 will be added using Courier and several channel providers like [Twilio](https://www.twilio.com/)
 for SMS and [SendGrid](https://sendgrid.com/) for email.
 
+Follow [@trycourier on Twitch](https://twitch.tv/trycourier) to be notified of future live streams.
+
 ## Remix this Project
 
 Create your own copy of this project using the button below.
@@ -20,11 +22,19 @@ This project uses 2 environment variables that you'll need to supply values for 
 
 ## Running locally
 
-This project was created to run in Glitch, but can be ran locally with these additional steps.
+This project was created to run in Glitch, but can be run locally with these additional steps.
 
-1. Clone the repo at https://github.com/aydrian/pigeon-weather
+1. Clone the repo at https://github.com/trycourier/pigeon-weather
 1. In the repo directory, run `npm install`
 1. Create the database by running `mkdir .data && touch .data/database.sqlite`
 1. Create a `.env` file and add the variables from above.
 1. Start the application by running `npm start`
 1. Open a browser to http://localhost:58428
+
+## Git Tags
+
+This project uses git tags to allow you to jump to different instances of the application. After each
+live stream, we will create a tag so you can see what the code looks like before and after.
+
+- [starter](https://github.com/trycourier/pigeon-weather/tree/starter): The initial state of the app
+- [20200311](https://github.com/trycourier/pigeon-weather/tree/20200311) ([video](https://youtu.be/0PakKiz6_hQ)): The result of the 3/11/2020 live stream that set up email and SMS notifications using Courier

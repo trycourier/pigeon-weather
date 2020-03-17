@@ -5,6 +5,7 @@ dependencies:
   '@babel/preset-react': 7.8.3
   '@babel/runtime': 7.8.7
   '@reach/router': 1.3.3
+  '@trycourier/courier': 1.3.0
   axios: 0.19.2
   babel-loader: 8.0.6
   css-loader: 3.4.2
@@ -895,6 +896,12 @@ packages:
       react-dom: ^16.8.0
     resolution:
       integrity: sha512-xjs6WnvJVueSIXMWw0C3oWIgAPpcD03qw43oGOjUXqFktvpNkB73JoKIhS4sCrtQxBdct75qqr4ZL6JiyPcESw==
+  /@trycourier/courier/1.3.0:
+    dependencies:
+      axios: 0.19.2
+    dev: false
+    resolution:
+      integrity: sha512-jU4mi/EYO76nXmeGuIZY9KccgT1U+AZ+kMvgbOR+4q8Dv/f4YG91QllpHgiC98IT+ccE6DXV9L1imOzf0vuSmA==
   /@types/node/13.7.0:
     dev: false
     resolution:
@@ -5724,6 +5731,7 @@ specifiers:
   '@babel/preset-react': ^7.8.3
   '@babel/runtime': ^7.8.7
   '@reach/router': ^1.3.2
+  '@trycourier/courier': ^1.3.0
   axios: ^0.19.2
   babel-loader: ^8.0.5
   css-loader: ^3.4.1
