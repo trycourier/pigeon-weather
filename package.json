@@ -46,6 +46,10 @@
   "keywords": [
     "node",
     "glitch",
-    "express"
+    "express",
+    "courier",
+    "twilio",
+    "sendgrid",
+    "slack"
   ]
 }

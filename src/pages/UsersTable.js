@@ -74,20 +74,15 @@ const UsersTable = () => {
                 <Table.Cell>{user.zipCode}</Table.Cell>
                 <Table.Cell>°{user.tempScale}</Table.Cell>
                 <Table.Cell>
-                  {false && (
-                    <List horizontal>
-                      {user.uiData?.channels?.map(channel => {
-                        return (
-                          <List.Item key={channel.name}>
-                            <List.Icon
-                              name={channel.icon}
-                              title={channel.name}
-                            />
-                          </List.Item>
-                        );
-                      })}
-                    </List>
-                  )}
+                  <List horizontal>
+                    {user.uiData?.channels?.map(channel => {
+                      return (
+                        <List.Item key={channel.name}>
+                          <List.Icon name={channel.icon} title={channel.name} />
+                        </List.Item>
+                      );
+                    })}
+                  </List>
                 </Table.Cell>
               </Table.Row>
             );
