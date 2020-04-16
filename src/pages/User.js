@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Radio,
+  Checkbox,
   Grid,
   Icon,
   Message,
@@ -24,7 +25,10 @@ const User = ({ userId }) => {
     tempScale: "F",
     zipCode: "",
     email: "",
-    phone_number: ""
+    phone_number: "",
+    slack: {
+      email: ""
+    }
   });
   const [status, setStatus] = useState({
     isSuccess: false,
@@ -35,7 +39,9 @@ const User = ({ userId }) => {
   const fetchUser = async userId => {
     const result = await axios(`/api/users/${userId}`);
     console.log(result.data);
-    setUser(result.data);
+    setUser(prevState => {
+      return { ...prevState, ...result.data };
+    });
   };
 
   useEffect(() => {
@@ -46,6 +52,17 @@ const User = ({ userId }) => {
 
   const handleChange = (e, { name, value }) =>
     setUser({ ...user, [name]: value });
+
+  const handleSlackEmailChange = (e, { value }) =>
+    setUser({ ...user, slack: { email: value } });
+
+  const handleSlackUseEmailChange = (e, { checked }) => {
+    if (checked) {
+      setUser({ ...user, slack: { email: user.email } });
+    } else {
+      setUser({ ...user, slack: { email: "" } });
+    }
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -160,6 +177,30 @@ const User = ({ userId }) => {
                   value={user.phone_number}
                   onChange={handleChange}
                 />
+                <Form.Group inline>
+                  <label>Slack Email</label>
+                  <Form.Field
+                    control={Input}
+                    placeholder="Slack Email"
+                    name="slack_email"
+                    type="email"
+                    value={user.slack.email}
+                    onChange={handleSlackEmailChange}
+                    disabled={
+                      user.email.length > 0 && user.slack.email === user.email
+                    }
+                  />
+                  <Form.Field
+                    control={Checkbox}
+                    label="Use Email"
+                    name="slackUseEmail"
+                    checked={
+                      user.email.length > 0 && user.slack.email === user.email
+                    }
+                    onChange={handleSlackUseEmailChange}
+                    disabled={user.email.length === 0}
+                  />
+                </Form.Group>
                 <Button compact type="submit" primary size="tiny">
                   <Icon name="save" /> Save
                 </Button>

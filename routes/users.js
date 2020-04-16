@@ -6,6 +6,24 @@ const { CourierClient } = require("@trycourier/courier");
 
 const courier = CourierClient();
 
+const buildUIData = ({ email = "", phone_number = "", slack = null }) => {
+  let channels = [];
+
+  if (phone_number && phone_number.length) {
+    channels.push({ name: "SMS", icon: "mobile alternate" });
+  }
+
+  if (email && email.length) {
+    channels.push({ name: "Email", icon: "mail" });
+  }
+
+  if (slack) {
+    channels.push({ name: "Slack", icon: "slack" });
+  }
+
+  return { channels };
+};
+
 // Retrieve all users
 router.get("/", async (req, res) => {
   const users = await User.findAll();
@@ -22,23 +40,32 @@ router.get("/:id", async (req, res) => {
     ...user.toJSON(),
     weather,
     email: profile.email || "",
-    phone_number: profile.phone_number || ""
+    phone_number: profile.phone_number || "",
+    slack: profile.slack || { email: "" }
   });
 });
 
 // Create user
 router.post("/", async (req, res) => {
   const { body: payload } = req;
-  const { phone_number, email, ...rest } = payload;
-  const newUser = await User.create(rest);
+  const { phone_number, email, slack, ...rest } = payload;
+  const profile = {
+    phone_number:
+      phone_number && phone_number.length ? phone_number : undefined,
+    email: email && email.length ? email : undefined,
+    slack: slack &&
+      slack.email && {
+        access_token: process.env.SLACK_BOT_TOKEN,
+        email: slack.email
+      }
+  };
+  const uiData = buildUIData(profile);
+  const newUser = await User.create({ ...rest, uiData });
   await courier.replaceProfile({
     recipientId: newUser.id,
-    profile: {
-      phone_number: phone_number && phone_number.length ? phone_number : undefined,
-      email: email && email.length ? email : undefined
-    }
+    profile
   });
-  res.status(201).json({ ...newUser, phone_number, email });
+  res.status(201).json({ ...newUser, phone_number, email, slack });
 });
 
 // Update user
@@ -47,15 +74,26 @@ router.put("/:id", async (req, res) => {
     body: payload,
     params: { id }
   } = req;
-  const { phone_number, email, ...rest } = payload;
+  const { phone_number, email, slack, ...rest } = payload;
+  const profile = {
+    phone_number:
+      phone_number && phone_number.length ? phone_number : undefined,
+    email: email && email.length ? email : undefined,
+    slack: slack &&
+      slack.email && {
+        access_token: process.env.SLACK_BOT_TOKEN,
+        email: slack.email
+      }
+  };
   try {
-    const numUpdated = await User.update(rest, { where: { id } });
+    const uiData = buildUIData(profile);
+    const numUpdated = await User.update(
+      { ...rest, uiData },
+      { where: { id } }
+    );
     await courier.replaceProfile({
       recipientId: id,
-      profile: {
-        phone_number: phone_number && phone_number.length ? phone_number : undefined,
-        email: email && email.length ? email : undefined
-      }
+      profile
     });
 
     res.json({ status: "ok", numUpdated });
